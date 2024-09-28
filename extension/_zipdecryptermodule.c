@@ -131,11 +131,9 @@ StandardZipDecrypter_call(StandardZipDecrypterObject *self, PyObject *args, PyOb
         return DecryptBytes(self, (const PyBytesObject*)PyBytes_FromObject(input));
     }
 
-    ssize_t msg_len = 256;
-    char *msg = (char *) malloc(msg_len);
-    snprintf(msg, msg_len, "a bytes object or int is required, not '%s'", input->ob_type->tp_name);
+    char msg[256];
+    snprintf(msg, sizeof(msg), "a bytes object or int is required, not '%s'", input->ob_type->tp_name);
     PyErr_SetString(PyExc_TypeError, msg);
-    free(msg);
 
     return NULL;
 }
