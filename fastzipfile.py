@@ -19,7 +19,8 @@ class FastZipExtFile(zipfile.ZipExtFile):
         _zipfile._ZipDecrypter changed by commit no 06e522521c06671b4559eecf9e2a185c2d62c141
         in bpo-10030.
 
-        Old interface of decrypter accepts one int at time while new interface accepts bytes object
+        Old interface of decrypter accepts one int at a time while the new interface accepts
+        a bytes object.
         """
 
         if self._compress_left <= 0:

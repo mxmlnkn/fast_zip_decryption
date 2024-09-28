@@ -9,15 +9,15 @@ static uint32_t CRC_TABLE [256] = {0};
 
 static void
 InitCRCTable() {
-    uint32_t poly = 0xedb88320;
-    for (uint32_t i = 0; i < 256; ++i) {
+    const uint32_t poly = 0xEDB88320U;
+    for (uint32_t i = 0; i < 256U; ++i) {
         uint32_t crc = i;
-        for (uint32_t j = 0; j < 8; ++j) {
-            if (crc & 0x1) {
-                crc = ((crc >> 1) & 0x7FFFFFFF) ^ poly;
+        for (uint32_t j = 0; j < 8U; ++j) {
+            if (crc & 0x1U) {
+                crc = ((crc >> 1U) & 0x7FFFFFFFU) ^ poly;
             }
             else {
-                crc = ((crc >> 1) & 0x7FFFFFFF);
+                crc = ((crc >> 1U) & 0x7FFFFFFFU);
             }
         }
         CRC_TABLE[i] = crc;
@@ -26,7 +26,7 @@ InitCRCTable() {
 
 static uint32_t
 CRC32(uint8_t ch, uint32_t crc) {
-    return ((crc >> 8) & 0xffffff) ^ CRC_TABLE[(crc ^ ch) & 0xff];
+    return ((crc >> 8U) & 0xFFFFFFU) ^ CRC_TABLE[(crc ^ ch) & 0xFFU];
 }
 
 typedef struct {
@@ -39,30 +39,31 @@ typedef struct {
 static void
 UpdateKeys(StandardZipDecrypterObject *decrypter, uint8_t c) {
     decrypter->key0 = CRC32(c, decrypter->key0);
-    decrypter->key1 = (decrypter->key1 + (decrypter->key0 & 255)) & 4294967295;
-    decrypter->key1 = (decrypter->key1 * 134775813 + 1) & 4294967295;
-    decrypter->key2 = CRC32((decrypter->key1 >> 24) & 255, decrypter->key2);
+    decrypter->key1 = (decrypter->key1 + (decrypter->key0 & 0xFFU)) & 0xFFFFFFFFU;
+    /* This formula is for a linear congruential generator to generate pseudo-random numbers. */
+    decrypter->key1 = (decrypter->key1 * 134775813U + 1U) & 0xFFFFFFFFU;
+    decrypter->key2 = CRC32((decrypter->key1 >> 24U) & 0xFFU, decrypter->key2);
 }
 
 static uint8_t
 DecryptByte(StandardZipDecrypterObject *decrypter, uint8_t c) {
-    uint32_t k = decrypter->key2 | 2;
-    c = c ^ (((k * (k^1)) >> 8) & 255);
+    const uint32_t k = decrypter->key2 | 2U;
+    c = c ^ (((k * (k ^ 1U)) >> 8U) & 0xFF);
     UpdateKeys(decrypter, c);
     return c;
 }
 
-static PyBytesObject *
+static PyObject *
 DecryptBytes(StandardZipDecrypterObject *decrypter, const PyBytesObject *input) {
-    Py_ssize_t len = PyBytes_GET_SIZE(input);
+    const Py_ssize_t len = PyBytes_GET_SIZE(input);
     // Return from here because malloc(0) is undefined
     if (len == 0) {
         return PyBytes_FromStringAndSize("", 0);
     }
 
-    const uint8_t* buffer = PyBytes_AS_STRING(input);
+    const uint8_t* const buffer = (uint8_t*)PyBytes_AS_STRING(input);
 
-    uint8_t *output = malloc(len * sizeof(uint8_t));
+    uint8_t* output = malloc(len * sizeof(uint8_t));
     if (output == NULL) {
         return PyErr_NoMemory();
     }
@@ -70,7 +71,7 @@ DecryptBytes(StandardZipDecrypterObject *decrypter, const PyBytesObject *input) 
     for (uint32_t i = 0; i < len; ++i) {
         output[i] = DecryptByte(decrypter, buffer[i]);
     }
-    PyBytesObject *ret = PyBytes_FromStringAndSize(output, len);
+    PyObject* const ret = PyBytes_FromStringAndSize((const char*)output, len);
     // Free allocated memory because it has been already copied to bytes object
     free(output);
     return ret;
@@ -108,14 +109,14 @@ StandardZipDecrypter_decrypt_bytes(StandardZipDecrypterObject *self, PyObject *a
 
 static PyObject *
 StandardZipDecrypter_call(StandardZipDecrypterObject *self, PyObject *args, PyObject *kwds) {
-    const PyObject* input;
+    PyObject* input;
 
     if (!PyArg_ParseTuple(args, "O", &input)) {
         return NULL;
     }
 
     if (PyLong_CheckExact(input)) {
-        uint32_t c = PyLong_AsUnsignedLong(input);
+        const uint32_t c = PyLong_AsUnsignedLong(input);
         if (PyErr_Occurred()) {
             return NULL;
         }
@@ -127,7 +128,7 @@ StandardZipDecrypter_call(StandardZipDecrypterObject *self, PyObject *args, PyOb
     }
 
     if (PyBytes_CheckExact(input)) {
-        return DecryptBytes(self, PyBytes_FromObject(input));
+        return DecryptBytes(self, (const PyBytesObject*)PyBytes_FromObject(input));
     }
 
     ssize_t msg_len = 256;
@@ -170,12 +171,11 @@ static PyModuleDef zipdecryptermodule = {
 
 PyMODINIT_FUNC
 PyInit__zipdecrypter() {
-    PyObject *m;
     if (PyType_Ready(&StandardZipDecrypterType) < 0) {
         return NULL;
     }
 
-    m = PyModule_Create(&zipdecryptermodule);
+    PyObject * const m = PyModule_Create(&zipdecryptermodule);
     if (m == NULL) {
         return NULL;
     }
