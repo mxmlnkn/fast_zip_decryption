@@ -6,7 +6,7 @@ import time
 import tempfile
 import zipfile
 
-import fastzipfile
+import fast_zip_decryption
 
 try:
     import pyminizip
@@ -68,8 +68,8 @@ def test_decompression():
             t1 = time.time()
             duration = t1 - t0
 
-            # On my local system: 6.2 s with Python, 0.1 s with fastzipfile
-            # On Github Actions: 7.6 s with Python, 0.1 s with fastzipfile
+            # On my local system: 6.2 s with Python, 0.1 s with this fix
+            # On Github Actions: 7.6 s with Python, 0.1 s with this fix
             # Thanks to the huge performance difference, this check should be sufficiently stable.
             print(f"Decryption took: {duration:.2e} s")
             assert duration < 1.0

@@ -55,4 +55,4 @@ jobs:
         python3 -m pip install dist/*.tar.gz
 
     - name: Tests
-      run: python3 tests/test_fastzipfile.py
+      run: python3 tests/test_fast_zip_decryption.py
