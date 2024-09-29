@@ -24,6 +24,7 @@ def create_encrypted_test_file(path):
         "digits-8MiB": b'01234567' * (1024 * 1024),
     }
 
+    folder = None
     try:
         folder = tempfile.TemporaryDirectory()
         os.chdir(folder.name)
@@ -49,8 +50,8 @@ def create_encrypted_test_file(path):
             subprocess.run(command, check=True)
     finally:
         os.chdir(old_working_directory)
-        shutil.rmtree(folder.name)
-
+        if folder is not None:
+            shutil.rmtree(folder.name)
     return files
 
 
