@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fastzipfile"
-version = "v2.2"
+version = "2.3"
 authors = [{name = "Kamil Mahmood", email = "kamil.mahmood@outlook.com"}]
 description = "Read password protected Zips 100x faster"
 keywords = ["zip", "zipfile", "fastzip"]
