@@ -1,0 +1,45 @@
+# See https://setuptools.readthedocs.io/en/latest/build_meta.html
+
+[build-system]
+# Use setuptools >= 43 because it automatically includes pyproject.toml in source distribution
+# Use setuptools >= 46.5 to use attr: package.__version__
+# Use setuptools >= 61 for pyproject.toml support
+# Use setuptools < 72 because of this: https://github.com/pypa/distutils/issues/283
+# https://setuptools.readthedocs.io/en/latest/history.html#id284
+requires = ["setuptools >= 61, < 72", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fastzipfile"
+version = "2.3"
+authors = [{name = "Kamil Mahmood", email = "kamil.mahmood@outlook.com"}]
+description = "Read password protected Zips 100x faster"
+keywords = ["zip", "zipfile", "fastzip"]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: System :: Archiving",
+    "Topic :: System :: Archiving :: Compression",
+    "Topic :: Utilities",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: Unix",
+    "Operating System :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+]
+urls = {Homepage = "https://github.com/kamilmahmood/fastzipfile"}
+requires-python = ">=3.8"
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[tool.setuptools]
+py-modules = ["fastzipfile"]
+license-files = ["LICENSE"]
