@@ -1,0 +1,27 @@
+[metadata]
+name = "fastzipfile"
+version = "v2.2"
+author = "Kamil Mahmood"
+author_email = "kamil.mahmood@outlook.com"
+description = "Read password protected Zips 100x faster"
+keywords = "zip, zipfile, fastzip"
+url = "https://github.com/kamilmahmood/fastzipfile"
+long_description = "file: README.md"
+long_description_content_type = "text/markdown"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Utilities",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+]
+
+[options]
+py_modules = "fastzipfile"
+zip_safe = false
+python_requires = ">=3.5, <3.9"
