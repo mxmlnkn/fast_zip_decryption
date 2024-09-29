@@ -1,5 +1,5 @@
 import io
-import logging
+import warnings
 import traceback
 import zipfile
 
@@ -9,17 +9,12 @@ import _zipdecrypter
 __all__ = ["monkeypatch"]
 
 
-_logger = logging.getLogger(__name__)
-logging.basicConfig()
-
-
 class FastZipExtFile(zipfile.ZipExtFile):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def _read2(self, n):
-        """
-        Read n bytes from file and decrypt.
+        """Read n bytes from file and decrypt.
 
         Copied from _zipfile.ZipExtFile._read2
         This method adheres to new interface of _zipfile._ZipDecrypter because interface of
@@ -57,21 +52,15 @@ def monkeypatch():
     # Of course, we are mostly only interested in changes to zipfile.ZipExtFile and
     # zipfile._ZipyDecrypter.
     if not hasattr(zipfile, "ZipExtFile"):
-        print(
-            "[Warning] zipfile.ZipExtFile does not exist. Cannot patch faster decryption."
-        )
+        warnings.warn("zipfile.ZipExtFile does not exist. Cannot patch faster decryption.")
         return
 
     if not hasattr(zipfile, "_ZipDecrypter"):
-        print(
-            "[Warning] zipfile._ZipDecrypter does not exist. Cannot patch faster decryption."
-        )
+        warnings.warn("zipfile._ZipDecrypter does not exist. Cannot patch faster decryption.")
         return
 
     if not hasattr(zipfile.ZipExtFile, "_read2"):
-        print(
-            "[Warning] zipfile.ZipExtFile._read2 does not exist. Cannot patch faster decryption."
-        )
+        warnings.warn("zipfile.ZipExtFile._read2 does not exist. Cannot patch faster decryption.")
         return
 
     # File created with:
@@ -106,10 +95,8 @@ def monkeypatch():
             with archive.open(archive.infolist()[0]) as file:
                 assert file.read() == b"secret\n"
     except Exception as exception:
-        _logger.warning(
-            f"Will not patch faster decryption because it would lead to: {type(exception)} {exception}"
-        )
-        traceback.print_exc()
+        tb = ''.join(traceback.format_exception(exception))
+        warnings.warn(f"Will not patch faster decryption because it would lead to: {type(exception)} {exception}\n{tb}")
         zipfile.ZipExtFile = OldZipExtFile
         zipfile._ZipDecrypter = OldZipDecrypter
 
