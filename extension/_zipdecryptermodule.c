@@ -104,7 +104,7 @@ StandardZipDecrypter_decrypt_bytes(StandardZipDecrypterObject *self, PyObject *a
         return NULL;
     }
 
-    return DecryptBytes(self, input);
+    return DecryptBytes(self, (PyBytesObject*)input);
 }
 
 static PyObject *
