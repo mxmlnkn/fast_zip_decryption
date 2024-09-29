@@ -10,4 +10,4 @@ decrypter = Extension('_zipdecrypter',
                       language='c',
                       extra_compile_args=["-std=c99"])
 
-setup(ext_modules=[decrypter], zip_safe=False)
+setup(ext_modules=[decrypter])
