@@ -40,6 +40,3 @@ content-type = "text/markdown"
 [tool.setuptools]
 py-modules = ["fastzipfile"]
 license-files = ["LICENSE"]
-
-[options]
-zip_safe = false
