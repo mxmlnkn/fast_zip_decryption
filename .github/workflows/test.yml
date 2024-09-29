@@ -2,7 +2,9 @@ name: Python Module Tests
 
 on:
   push:
-    branches: ["dev"]
+    branches: ["master", "develop"]
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   Tests:
@@ -30,7 +32,7 @@ jobs:
     - name: Install Python Modules
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install --upgrade-strategy eager --upgrade build pyminizip
+        python3 -m pip install --upgrade-strategy eager --upgrade cibuildwheel twine pyminizip
 
     - name: Install Python Modules (Windows)
       if: matrix.os == 'windows-latest'
@@ -49,7 +51,8 @@ jobs:
       shell: bash
       run: |
         python3 -m build
+        twine check dist/*
         python3 -m pip install dist/*.tar.gz
 
     - name: Tests
-      run: python3 tests/test_fastzipfile.py
+      run: python3 tests/test_fast-zip-decryption.py

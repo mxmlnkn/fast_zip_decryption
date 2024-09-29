@@ -10,9 +10,9 @@ requires = ["setuptools >= 61, < 72", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fastzipfile"
-version = "2.3"
-authors = [{name = "Kamil Mahmood", email = "kamil.mahmood@outlook.com"}]
+name = "fast-zip-decryption"
+version = "3.0.0"
+authors = [{name = "Maximilian Knespel", email = "mxmlnkn@no-reply.github.com"}]
 description = "Read password protected Zips 100x faster"
 keywords = ["zip", "zipfile", "fastzip"]
 license = {text = "MIT"}
@@ -33,7 +33,7 @@ classifiers = [
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
 ]
-urls = {Homepage = "https://github.com/kamilmahmood/fastzipfile"}
+urls = {Homepage = "https://github.com/mxmlnkn/fast-zip-decryption"}
 requires-python = ">=3.8"
 
 [project.readme]
@@ -41,5 +41,5 @@ file = "README.md"
 content-type = "text/markdown"
 
 [tool.setuptools]
-py-modules = ["fastzipfile"]
+py-modules = ["fast_zip_decryption"]
 license-files = ["LICENSE"]
