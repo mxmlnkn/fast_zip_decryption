@@ -1,5 +1,3 @@
-from os import path
-
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
@@ -19,7 +17,6 @@ class Build(build_ext):
 decrypter = Extension(
     "_zipdecrypter",
     sources=["extension/_zipdecryptermodule.c"],
-    language="c",
-    extra_compile_args=["-std=c99"],
+    language="c"
 )
 setup(ext_modules=[decrypter], cmdclass={"build_ext": Build})
