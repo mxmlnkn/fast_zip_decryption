@@ -7,7 +7,7 @@
 // Must be intialized on module init
 static uint32_t CRC_TABLE [256] = {0};
 
-static void 
+static void
 InitCRCTable() {
     uint32_t poly = 0xedb88320;
     for (uint32_t i = 0; i < 256; ++i) {
@@ -36,7 +36,7 @@ typedef struct {
     uint32_t key2;
 } StandardZipDecrypterObject;
 
-static void 
+static void
 UpdateKeys(StandardZipDecrypterObject *decrypter, uint8_t c) {
     decrypter->key0 = CRC32(c, decrypter->key0);
     decrypter->key1 = (decrypter->key1 + (decrypter->key0 & 255)) & 4294967295;
@@ -59,14 +59,14 @@ DecryptBytes(StandardZipDecrypterObject *decrypter, const PyBytesObject *input) 
     if (len == 0) {
         return PyBytes_FromStringAndSize("", 0);
     }
-    
+
     const uint8_t* buffer = PyBytes_AS_STRING(input);
 
     uint8_t *output = malloc(len * sizeof(uint8_t));
     if (output == NULL) {
         return PyErr_NoMemory();
     }
-    
+
     for (uint32_t i = 0; i < len; ++i) {
         output[i] = DecryptByte(decrypter, buffer[i]);
     }
@@ -84,7 +84,7 @@ StandardZipDecrypter_init(StandardZipDecrypterObject *self, PyObject *args, PyOb
     if (!PyArg_ParseTuple(args, "y#", &pwd, &pwd_len)) {
         return -1;
     }
-    
+
     self->key0 = 305419896;
     self->key1 = 591751049;
     self->key2 = 878082192;
@@ -135,14 +135,14 @@ StandardZipDecrypter_call(StandardZipDecrypterObject *self, PyObject *args, PyOb
     snprintf(msg, msg_len, "a bytes object or int is required, not '%s'", input->ob_type->tp_name);
     PyErr_SetString(PyExc_TypeError, msg);
     free(msg);
-    
+
     return NULL;
 }
 
 static PyMethodDef StandardZipDecrypter_methods[] = {
     {
-        .ml_name = "decrypt_bytes", 
-        .ml_meth = (PyCFunction) StandardZipDecrypter_decrypt_bytes, 
+        .ml_name = "decrypt_bytes",
+        .ml_meth = (PyCFunction) StandardZipDecrypter_decrypt_bytes,
         .ml_flags = METH_VARARGS,
         .ml_doc = "Decrypt and return bytes object"
     },
