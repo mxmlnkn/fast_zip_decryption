@@ -1,0 +1,58 @@
+name: Python Module Tests
+
+on:
+  push:
+    branches: ["master", "develop"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  Tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13.0-rc.2']
+        os: [macos-13, macos-latest, ubuntu-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get -y install gcc zip
+
+    - name: Install Python Modules
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install --upgrade-strategy eager --upgrade cibuildwheel twine pyminizip
+
+    - name: Install Python Modules (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        # https://github.com/pypa/build/issues/253#issuecomment-793906474
+        # https://bugs.python.org/issue43749
+        # Only seems to be an issue with versions older than 3.9 because they did not backport the fix.
+        python3 -m pip install --upgrade build[virtualenv]
+
+    - name: Install Python Modules (Non-Windows)
+      if: matrix.os != 'windows-latest'
+      run: |
+        python3 -m pip install --upgrade build
+
+    - name: Test Installation From Tarball
+      shell: bash
+      run: |
+        python3 -m build
+        twine check dist/*
+        python3 -m pip install dist/*.tar.gz
+
+    - name: Tests
+      run: python3 tests/test_fastzipfile.py
