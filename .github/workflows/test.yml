@@ -52,7 +52,13 @@ jobs:
       run: |
         python3 -m build
         twine check dist/*
-        python3 -m pip install dist/*.tar.gz
+        python3 -m pip install --force-reinstall dist/*.tar.gz
+        python3 tests/test_fast-zip-decryption.py
 
-    - name: Tests
-      run: python3 tests/test_fast-zip-decryption.py
+    - name: Test Installation From Wheel
+      shell: bash
+      run: |
+        python3 -m build
+        twine check dist/*
+        python3 -m pip install dist/*.whl
+        python3 tests/test_fast-zip-decryption.py
