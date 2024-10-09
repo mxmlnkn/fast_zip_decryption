@@ -32,7 +32,7 @@ jobs:
     - name: Install Python Modules
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install --upgrade-strategy eager --upgrade cibuildwheel twine pyminizip
+        python3 -m pip install --upgrade-strategy eager --upgrade cibuildwheel twine pyminizip abi3audit
 
     - name: Install Python Modules (Windows)
       if: matrix.os == 'windows-latest'
@@ -51,7 +51,7 @@ jobs:
       shell: bash
       run: |
         python3 -m build
-        twine check dist/*
+        twine check dist/*.tar.gz
         python3 -m pip install --force-reinstall dist/*.tar.gz
         python3 tests/test_fast-zip-decryption.py
 
@@ -59,6 +59,7 @@ jobs:
       shell: bash
       run: |
         python3 -m build
-        twine check dist/*
+        twine check dist/*.whl
+        abi3audit dist/*.whl
         python3 -m pip install dist/*.whl
         python3 tests/test_fast-zip-decryption.py

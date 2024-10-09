@@ -54,14 +54,14 @@ DecryptByte(StandardZipDecrypterObject *decrypter, uint8_t c) {
 }
 
 static PyObject *
-DecryptBytes(StandardZipDecrypterObject *decrypter, const PyBytesObject *input) {
-    const Py_ssize_t len = PyBytes_GET_SIZE(input);
+DecryptBytes(StandardZipDecrypterObject *decrypter, PyObject *input) {
+    const Py_ssize_t len = PyBytes_Size(input);
     // Return from here because malloc(0) is undefined
     if (len == 0) {
         return PyBytes_FromStringAndSize("", 0);
     }
 
-    const uint8_t* const buffer = (uint8_t*)PyBytes_AS_STRING(input);
+    const uint8_t* const buffer = (const uint8_t*)PyBytes_AsString(input);
 
     uint8_t* output = malloc(len * sizeof(uint8_t));
     if (output == NULL) {
@@ -104,7 +104,7 @@ StandardZipDecrypter_decrypt_bytes(StandardZipDecrypterObject *self, PyObject *a
         return NULL;
     }
 
-    return DecryptBytes(self, (PyBytesObject*)input);
+    return DecryptBytes(self, (PyObject*)input);
 }
 
 static PyObject *
@@ -128,12 +128,10 @@ StandardZipDecrypter_call(StandardZipDecrypterObject *self, PyObject *args, PyOb
     }
 
     if (PyBytes_CheckExact(input)) {
-        return DecryptBytes(self, (const PyBytesObject*)PyBytes_FromObject(input));
+        return DecryptBytes(self, PyBytes_FromObject(input));
     }
 
-    char msg[256];
-    snprintf(msg, sizeof(msg), "a bytes object or int is required, not '%s'", input->ob_type->tp_name);
-    PyErr_SetString(PyExc_TypeError, msg);
+    PyErr_SetString(PyExc_TypeError, "A bytes object or int is required.");
 
     return NULL;
 }
@@ -148,41 +146,49 @@ static PyMethodDef StandardZipDecrypter_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyTypeObject StandardZipDecrypterType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "zipdecrypter.StandardZipDecrypter",
-    .tp_doc = "Zip Standard 2.0 Encrypted files decrypter",
-    .tp_basicsize = sizeof(StandardZipDecrypterObject),
-    .tp_itemsize = 0,
-    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    .tp_new = PyType_GenericNew,
-    .tp_init = (initproc) StandardZipDecrypter_init,
-    .tp_call = (ternaryfunc) StandardZipDecrypter_call,
-    .tp_methods = StandardZipDecrypter_methods,
+
+static PyType_Slot StandardZipDecrypter_slots[] = {
+    {Py_tp_new, PyType_GenericNew},
+    {Py_tp_init, (initproc) StandardZipDecrypter_init},
+    {Py_tp_call, (ternaryfunc) StandardZipDecrypter_call},
+    {Py_tp_methods, StandardZipDecrypter_methods},
+    {0, NULL},  /* End-of-array token. */
 };
 
-static PyModuleDef zipdecryptermodule = {
+static PyType_Spec StandardZipDecrypter_specification = {
+    .name = "zipdecrypter.StandardZipDecrypter",
+    .basicsize = sizeof(StandardZipDecrypterObject),
+    .itemsize = 0,
+    .flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .slots = StandardZipDecrypter_slots,
+};
+
+static PyModuleDef zipdecrypterModule = {
     PyModuleDef_HEAD_INIT,
     .m_name = "_zipdecrypter",
     .m_size = -1
 };
 
+
 PyMODINIT_FUNC
 PyInit__zipdecrypter() {
-    if (PyType_Ready(&StandardZipDecrypterType) < 0) {
+    PyObject* const standardZipDecrypterClass = PyType_FromSpec(&StandardZipDecrypter_specification);
+    if (standardZipDecrypterClass == NULL) {
         return NULL;
     }
 
-    PyObject * const m = PyModule_Create(&zipdecryptermodule);
+    PyObject * const m = PyModule_Create(&zipdecrypterModule);
     if (m == NULL) {
         return NULL;
     }
 
-    if (PyModule_AddObject(m, "StandardZipDecrypter", (PyObject *) &StandardZipDecrypterType) != 0) {
-        Py_DECREF(m);
+    if (PyModule_AddObject(m, "StandardZipDecrypter", standardZipDecrypterClass) != 0)
+    {
+        Py_DecRef(m);
         return NULL;
     }
 
     InitCRCTable();
+
     return m;
 }
